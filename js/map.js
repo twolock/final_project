@@ -72,11 +72,11 @@ var map_g = d3.select('#chart-svg')
 	.append('g')
 	.attr('id', 'map-g')
 
-draw_map(settings.iso3, settings.year)
+draw_map()
 
 $('.country').on('click', function() {
 	console.log('Clicked',this.__data__.properties.admin)
-	// settings.iso3 = this.__data__.properties.adm0_a3
+	settings.iso3 = this.__data__.properties.adm0_a3
 	// console.log(settings)
 	// draw_map()
 })
