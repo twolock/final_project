@@ -19,14 +19,6 @@ function get_data(iso3, year){
 	return subset
 }
 
-function add_click(){
-	$('.country').on('click', function() {
-		var tmp_iso3 = this.__data__.properties.adm0_a3
-		settings.iso3 = tmp_iso3
-		draw_map()
-	})
-}
-
 function draw_map() {
 	var iso3 = settings.iso3, year = settings.year
 	var current_data = get_data(iso3, year)
@@ -46,7 +38,7 @@ function draw_map() {
 		.domain([0, max_val])
 		.range(['#C4DDFF', '#253D5E'])
 	
-	paths.transition(500)
+	paths.transition(200)
 		.attr("fill", function(d){
 			var tmp_val = current_data.data[d.properties.adm0_a3]
 			var tmp_scale = (tmp_val > 0) ? donor_scale : recip_scale
@@ -60,7 +52,6 @@ function draw_map() {
 			}
 		})
 
-	add_click()
 	return true
 
 }
@@ -89,5 +80,11 @@ var paths = d3.select('#map-g').selectAll('.country')
 	.attr("stroke", "#ffffff")
 	.attr('d', path)
 	.style('cursor', 'pointer')
+
+$('.country').on('click', function() {
+	var tmp_iso3 = this.__data__.properties.adm0_a3
+	settings.iso3 = tmp_iso3
+	draw_map()
+})
 
 draw_map()
