@@ -2,13 +2,23 @@
 <html>
 <head>
 	<script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+	<link href="http://code.jquery.com/ui/1.11.1/themes/smoothness/jquery-ui.min.css" rel="stylesheet" type="text/css" />
 	<script src="http://code.jquery.com/jquery-1.11.1.js" charset="utf-8"></script>
-    <script type="text/javascript" src="data/data.js"></script>
+	<script src="http://code.jquery.com/ui/1.11.1/jquery-ui.min.js"></script>    
+	<script type="text/javascript" src="data/data.js"></script>
+	<script src="lib/poshytip-1.2/src/jquery.poshytip.js"></script>
+	<link href="lib/poshytip-1.2/src/tip-twitter/tip-twitter.css" rel="stylesheet">
+	<link rel="stylesheet" href="css/styles.css">	
     <script type="text/javascript" src="data/shape.js"></script>
     <script type="text/javascript" src="js/clone.js"></script>
   <meta charset="utf-8">
-  <title>Assignment 3</title>
-  <svg x=0 y=0 width=1000 height=600 id='chart-svg'></svg>
+  <title>Food Aid Visualization</title>
+  <div id='chart-div'>
+	  <svg x=0 y=0 width=1000 height=500 id='chart-svg'></svg>
+  </div>
+  <div id='slider-div'>
+  </div>
+  <text id='year-text'>1988</text>
   <script type="text/javascript" src="js/map.js"></script>
 </head>
 <body>

@@ -38,7 +38,7 @@ function draw_map() {
 		.domain([0, max_val])
 		.range(['#C4DDFF', '#253D5E'])
 	
-	paths.transition(200)
+	paths.transition(100)
 		.attr("fill", function(d){
 			var tmp_val = current_data.data[d.properties.adm0_a3]
 			var tmp_scale = (tmp_val > 0) ? donor_scale : recip_scale
@@ -56,10 +56,25 @@ function draw_map() {
 
 }
 
+
+
 var settings = {
-	iso3: 'CAN',
-	year: 1990
+	iso3: 'USA',
+	year: 1988
 }
+
+$('#slider-div').slider({
+	min:1988,
+	max:2012,
+	value:settings.year,
+	step: 1,
+	slide: function(event, ui){
+		settings.year = ui.value
+		draw_map()
+		$('#year-text').text(ui.value)
+	}
+
+})
 
 var map_g = d3.select('#chart-svg')
 	.append('g')
@@ -85,6 +100,26 @@ $('.country').on('click', function() {
 	var tmp_iso3 = this.__data__.properties.adm0_a3
 	settings.iso3 = tmp_iso3
 	draw_map()
+})
+
+$('.country').poshytip({
+	alignTo: 'cursor', // Align to cursor
+	followCursor: true, // follow cursor when it moves
+	fade:false,
+	allowTipHover: false,
+	showTimeout: 0, // No fade in
+	hideTimeout: 0,  // No fade out
+	alignX: 'center', // X alignment
+	alignY: 'inner-bottom', // Y alignment
+	className: 'tip-twitter', // Class for styling
+	offsetY: 10, // Offset vertically
+	slide: false, // No slide animation
+	content: function(d){
+		var obj = this.__data__ // Data associated with element
+		var name = obj.properties.brk_name // Name from properties
+		return name // String to return
+	}
+
 })
 
 draw_map()
