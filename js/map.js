@@ -18,6 +18,15 @@ function get_data(iso3, year){
 	subset['data'] = tmp_data
 	return subset
 }
+
+function add_click(){
+	$('.country').on('click', function() {
+		var tmp_iso3 = this.__data__.properties.adm0_a3
+		settings.iso3 = tmp_iso3
+		draw_map()
+	})
+}
+
 function draw_map() {
 	var iso3 = settings.iso3, year = settings.year
 	var current_data = get_data(iso3, year)
@@ -30,53 +39,55 @@ function draw_map() {
 	var max_val = d3.max(current_vals)
 	var min_val = d3.min(current_vals)
 
-	var val_scale = d3.scale.linear()
-		.domain([min_val, max_val])
+	var recip_scale = d3.scale.linear()
+		.domain([0, min_val])
 		.range(['#FFDFDD', 'maroon'])
-
-	// Set projection -- how the geography is distorted
-	var projection = d3.geo.equirectangular()
-
-	// Set path generator -- how coordinates translate into a path element
-	var path = d3.geo.path().projection(projection)
-
-	d3.select('#map-g').selectAll('.country').remove()
-	// Draw paths
-	var paths = d3.select('#map-g').selectAll('.country')
-		.data(shape.features)
-		.enter().append("path")
-		.attr('class', 'country')
+	var donor_scale = d3.scale.linear()
+		.domain([0, max_val])
+		.range(['#C4DDFF', '#253D5E'])
+	
+	paths.transition(500)
 		.attr("fill", function(d){
 			var tmp_val = current_data.data[d.properties.adm0_a3]
+			var tmp_scale = (tmp_val > 0) ? donor_scale : recip_scale
 			var tmp_iso3 = d.properties.adm0_a3
 
 			if (tmp_iso3 == settings.iso3) {
 				return '#C9BE62'
 			}
 			else {
-				return (tmp_val == undefined | tmp_val == 0) ? '#d3d3d3' : val_scale(tmp_val)
+				return (tmp_val == undefined | tmp_val == 0) ? '#d3d3d3' : tmp_scale(tmp_val)
 			}
 		})
-		.attr("stroke", "#ffffff")
-		.attr('d', path)
+
+	add_click()
 	return true
 
 }
 
 var settings = {
 	iso3: 'CAN',
-	year: 2000
+	year: 1990
 }
 
 var map_g = d3.select('#chart-svg')
 	.append('g')
 	.attr('id', 'map-g')
+	// Set projection -- how the geography is distorted
+var projection = d3.geo.equirectangular()
+
+// Set path generator -- how coordinates translate into a path element
+var path = d3.geo.path().projection(projection)
+
+d3.select('#map-g').selectAll('.country').remove()
+// Draw paths
+var paths = d3.select('#map-g').selectAll('.country')
+	.data(shape.features)
+	.enter().append("path")
+	.attr('class', 'country')
+	.attr('fill', '#d3d3d3')
+	.attr("stroke", "#ffffff")
+	.attr('d', path)
+	.style('cursor', 'pointer')
 
 draw_map()
-
-$('.country').on('click', function() {
-	console.log('Clicked',this.__data__.properties.admin)
-	settings.iso3 = this.__data__.properties.adm0_a3
-	// console.log(settings)
-	// draw_map()
-})
