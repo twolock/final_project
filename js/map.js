@@ -1,3 +1,4 @@
+
 function get_data(iso3, year){
 	var out_data = data.filter(function(d) {
 		return d.iso3 == iso3 & d.year == year
@@ -17,8 +18,8 @@ function get_data(iso3, year){
 	subset['data'] = tmp_data
 	return subset
 }
-
-function draw_map(iso3, year) {
+function draw_map() {
+	var iso3 = settings.iso3, year = settings.year
 	var current_data = get_data(iso3, year)
 	var current_vals = []
 	for (var key in current_data.data) {
@@ -31,42 +32,51 @@ function draw_map(iso3, year) {
 
 	var val_scale = d3.scale.linear()
 		.domain([min_val, max_val])
-		.range(['pink', 'maroon'])
+		.range(['#FFDFDD', 'maroon'])
 
 	// Set projection -- how the geography is distorted
 	var projection = d3.geo.equirectangular()
 
-	var map_g = d3.select('#chart-svg')
-		.append('g')
-		.attr('id', 'map-g')
-
 	// Set path generator -- how coordinates translate into a path element
 	var path = d3.geo.path().projection(projection)
 
-	d3.select('#map-g').selectAll('path').remove()
+	d3.select('#map-g').selectAll('.country').remove()
 	// Draw paths
-	var paths = d3.select('#map-g').selectAll('path')
+	var paths = d3.select('#map-g').selectAll('.country')
 		.data(shape.features)
 		.enter().append("path")
+		.attr('class', 'country')
 		.attr("fill", function(d){
 			var tmp_val = current_data.data[d.properties.adm0_a3]
-			
-			return (tmp_val == undefined | tmp_val == 0) ? '#d3d3d3' : val_scale(tmp_val)
+			var tmp_iso3 = d.properties.adm0_a3
+
+			if (tmp_iso3 == settings.iso3) {
+				return '#C9BE62'
+			}
+			else {
+				return (tmp_val == undefined | tmp_val == 0) ? '#d3d3d3' : val_scale(tmp_val)
+			}
 		})
 		.attr("stroke", "#ffffff")
 		.attr('d', path)
+	return true
 
-}
-
-function tick() {
-	draw_map(settings.iso3, settings.year)
-	settings.year += 1
 }
 
 var settings = {
-	iso3: 'ETH',
-	year: 1988
+	iso3: 'CAN',
+	year: 2000
 }
 
-window.setInterval(tick, 750)
+var map_g = d3.select('#chart-svg')
+	.append('g')
+	.attr('id', 'map-g')
 
+draw_map(settings.iso3, settings.year)
+
+$('.country').on('click', function() {
+	console.log('Clicked',this.__data__.properties.admin)
+	// settings.iso3 = this.__data__.properties.adm0_a3
+	// console.log(settings)
+	// draw_map()
+})
