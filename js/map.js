@@ -123,3 +123,4 @@ $('.country').poshytip({
 })
 
 draw_map()
+
