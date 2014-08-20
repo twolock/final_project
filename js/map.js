@@ -53,7 +53,7 @@ function draw_map(iso3, year) {
 			
 			return (tmp_val == undefined | tmp_val == 0) ? '#d3d3d3' : val_scale(tmp_val)
 		})
-		.attr("stroke", "#000")
+		.attr("stroke", "#ffffff")
 		.attr('d', path)
 
 }
