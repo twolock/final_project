@@ -113,7 +113,7 @@ function draw_map() {
 
 var settings = {
 	iso3: 'USA',
-	year: 2000,
+	year: 1995,
 	map_w: 1000,
 	subtitle_gap: 20
 }
