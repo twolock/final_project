@@ -22,6 +22,8 @@ function get_data(iso3, year, obj){
 function get_name(iso3) {
 	if (iso3 == 'SSD') {return 'South Sudan'}
 	else if (iso3 == 'PSE') {return 'Palestine'}
+	else if (iso3 == 'COD') {return 'Dem. Rep. Congo'}
+	else if (iso3 == 'CIV') {return "Cote d'Ivoire"}
 	else {return (iso3 == 'SSD') ? 'South Sudan' : shape.features.filter(function(d) {return d.properties.adm0_a3 == iso3})[0].properties.brk_name}
 }
 
@@ -104,18 +106,93 @@ function draw_map() {
 				return 'unselected'
 			}
 		})
-	make_list()
+	make_dash()
 	return true
 
 }
 
+function make_list() {
+	dash_g.selectAll('#recip-list').remove()
+	var recip_text = dash_g.selectAll('#recip-list').data(top_neighbors(settings.iso3, settings.year, data, donor_data))
+	recip_text.enter().append('text')
+		.text(function(d,i){return (i+1)+'.  '+d[0]})
+		.attr('y', function(d, i) {return i * 17 + settings.heading_gap + 200 + (settings.top_to_title + settings.title_to_subtitle + settings.subtitle_to_map)})
+		.attr('id', 'recip-list')
+		.attr('class', 'rank-list')
 
+	dash_g.selectAll('#donor-list').remove()
+	var donor_text = dash_g.selectAll('#donor-list').data(top_neighbors(settings.iso3, settings.year, data, recip_data))
+	donor_text.enter().append('text')
+		.text(function(d,i){return (i+1)+'.  '+d[0]})
+		.attr('x', 200)
+		.attr('y', function(d, i) {return i * 17 + settings.heading_gap + 200 + (settings.top_to_title + settings.title_to_subtitle + settings.subtitle_to_map)})
+		.attr('id', 'donor-list')
+		.attr('class', 'rank-list')
+	$('.rank-list').on('click', function() {
+		var tmp_iso3 = this.__data__[2]
+		settings.iso3 = tmp_iso3
+		draw_map() 
+	})
+}
+
+function make_dash() {
+	dash_g.selectAll('#country-name').remove()
+	dash_g.append('text')
+		.text(get_name(settings.iso3))
+		.attr('transform', 'translate(0,' + (settings.top_to_title + settings.title_to_subtitle + settings.subtitle_to_map) + ')')
+		.attr('id', 'country-name')
+	
+	dash_g.selectAll('#selected-year').remove()
+	dash_g.append('text')
+		.text(settings.year)
+		.attr('transform', 'translate(0,' + (settings.top_to_title + settings.title_to_subtitle + settings.subtitle_to_map + settings.country_to_year) + ')')
+		.attr('id', 'selected-year')
+	
+	dash_g.selectAll('#amt-donated').remove()
+	dash_g.append('text')
+		.text(function() {
+			return d3.format('.3s')(obj_sum(get_data(settings.iso3, settings.year, donor_data).data)) + ' metric tons donated'
+		})
+		.attr('transform', 'translate(0,' + (settings.top_to_title + settings.title_to_subtitle + settings.subtitle_to_map
+			+ settings.country_to_year + settings.year_to_donated) + ')')
+		.attr('id', 'amt-donated')
+		.attr('class', 'amt')
+	
+	dash_g.selectAll('#amt-received').remove()
+	dash_g.append('text')
+		.text(function() {
+			return d3.format('.3s')(Math.abs(obj_sum(get_data(settings.iso3, settings.year, recip_data).data))) + ' metric tons received'
+		})
+		.attr('transform', 'translate(0,' + (settings.top_to_title + settings.title_to_subtitle + settings.subtitle_to_map
+			+ settings.country_to_year + settings.year_to_donated + settings.donated_to_received) + ')')
+		.attr('id', 'amt-received')
+		.attr('class', 'amt')
+
+	var donor_text = (get_data(settings.iso3, settings.year, data).ALL > 0) ? 'Net Donor' : 'Net Recipient'
+	var donor_color = (get_data(settings.iso3, settings.year, data).ALL > 0) ? '#086270' : '#7A1B01'
+	dash_g.selectAll('#donor-status').remove()
+	dash_g.append('text')
+		.text(donor_text)
+		.attr('transform', 'translate(0,' + (settings.top_to_title + settings.title_to_subtitle + settings.subtitle_to_map
+			+ settings.country_to_year + settings.year_to_donated + settings.donated_to_received + settings.received_to_status) + ')')
+		.attr('id', 'donor-status')
+		.attr('fill', donor_color)
+
+	make_list()
+}
 
 var settings = {
 	iso3: 'USA',
 	year: 1995,
 	map_w: 1000,
-	subtitle_gap: 20
+	top_to_title: 50,
+	title_to_subtitle: 25,
+	subtitle_to_map: 10,
+	heading_gap: 20,
+	country_to_year: 25,
+	year_to_donated: 40,
+	donated_to_received: 30,
+	received_to_status: 50
 }
 
 $('#slider-div').slider({
@@ -131,29 +208,23 @@ $('#slider-div').slider({
 
 })
 
-function make_list() {
-	dash_g.selectAll('#recip-list').remove()
-	var recip_text = dash_g.selectAll('#recip-list').data(top_neighbors(settings.iso3, settings.year, data, donor_data))
-	recip_text.enter().append('text')
-		.text(function(d,i){return (i+1)+'.  '+d[0]})
-		.attr('y', function(d, i) {return i * 17 + settings.subtitle_gap})
-		.attr('id', 'recip-list')
-		.attr('class', 'rank-list')
-
-	dash_g.selectAll('#donor-list').remove()
-	var donor_text = dash_g.selectAll('#donor-list').data(top_neighbors(settings.iso3, settings.year, data, recip_data))
-	donor_text.enter().append('text')
-		.text(function(d,i){return (i+1)+'.  '+d[0]})
-		.attr('y', function(d, i) {return i * 17 + settings.subtitle_gap + 200})
-		.attr('id', 'donor-list')
-		.attr('class', 'rank-list')
-
-}
-
 var map_g = d3.select('#chart-svg')
 	.append('g')
 	.attr('id', 'map-g')
 	// Set projection -- how the geography is distorted
+var title = map_g.append('text')
+	.attr('class', 'title')
+	.text('Donors and Recipients of Food Aid')
+	.attr('y', settings.top_to_title)
+var title = map_g.append('text')
+	.attr('class', 'title')
+	.text('Donors and Recipients of Food Aid')
+	.attr('y', settings.top_to_title)
+var subtitle = map_g.append('text')
+	.text('Net food aid sent/received by all countries in metric tons (MT), 1988-2012')
+	.attr('x', 2)
+	.attr('y', settings.top_to_title + settings.title_to_subtitle)
+	.attr('class', 'subtitle')
 var projection = d3.geo.equirectangular()
 
 // Set path generator -- how coordinates translate into a path element
@@ -168,16 +239,18 @@ var paths = d3.select('#map-g').selectAll('.country')
 	.attr('fill', '#d3d3d3')
 	.attr("stroke", "#ffffff")
 	.attr('d', path)
+	.attr('transform', 'translate(0,'+(settings.top_to_title + settings.title_to_subtitle + settings.subtitle_to_map)+')')
 	.style('cursor', 'pointer')
 
 var dash_g = d3.select('#chart-svg').append('g')
 	.attr('id', 'dash-g')
 	.attr('transform', 'translate(' + settings.map_w + ',50)')
 d3.select('#dash-g').append('text').text('Top 10 Recipients')
-	.attr('class', 'subtitle')
+	.attr('class', 'heading')
+	.attr('transform', 'translate(0,' + (200 + settings.top_to_title + settings.title_to_subtitle + settings.subtitle_to_map) + ')')
 d3.select('#dash-g').append('text').text('Top 10 Donors')
-	.attr('transform', 'translate(0,' + 200 + ')')
-	.attr('class', 'subtitle')
+	.attr('transform', 'translate(200,' + (200 + settings.top_to_title + settings.title_to_subtitle + settings.subtitle_to_map) + ')')
+	.attr('class', 'heading')
 
 $('.country').on('click', function() {
 	var tmp_iso3 = this.__data__.properties.adm0_a3
@@ -199,7 +272,7 @@ $('.country').poshytip({
 	slide: false, // No slide animation
 	content: function(d){
 		var obj = this.__data__ // Data associated with element
-		var name = obj.properties.brk_name // Name from properties
+		var name = get_name(obj.properties.adm0_a3) // Name from properties
 		var tmp_iso3 = obj.properties.adm0_a3
 		var net_data = get_data(settings.iso3, settings.year, data).data[tmp_iso3]
 		if (net_data != 0 & net_data != undefined){

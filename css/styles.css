@@ -2,21 +2,48 @@
 	width:500px;
 }
 
+/*
 .selected {
 	stroke:gray;
 	stroke-width:1;
 }
+*/
 
 text{
-	font-family: 'Karma', sans-serif;
-	font-size: 16px;
+	font-family: 'Open Sans', sans-serif;
+	font-size: 12px;
 }
 
 .rank-list {
 	font-weight: 400;
-	cursor: default;
+	cursor: pointer;
 }
 
+.heading{
+	font-weight: 600;
+	font-size: 14px;
+}
 .subtitle{
-	font-weight: 700;
+	font-weight: 400;
+	font-size: 18px;
+}
+.title{
+	font-weight: 600;
+	font-size: 36px;
+}
+
+.amt {
+	font-size: 24px;
+}
+
+#country-name {
+	font-weight: 600;
+	font-size: 30px;
+}
+#selected-year {
+	font-size: 20px;
+}
+#donor-status{
+	font-size: 26px;
+	font-weight: 600;
 }
