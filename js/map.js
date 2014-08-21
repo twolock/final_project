@@ -57,7 +57,7 @@ function top_neighbors(iso3, year, data, data2) {
 	var out_list = []
 	if (Object.keys(rev_data).length > 0){
 		for (i = 0; i <= Math.min(9, Object.keys(rev_data).length-1); i++) {
-			out_list.push([get_name(rev_data[tmp_vals[i]]), tmp_vals[i]])
+			out_list.push([get_name(rev_data[tmp_vals[i]]), tmp_vals[i], rev_data[tmp_vals[i]]])
 		}
 	}
 
@@ -132,19 +132,22 @@ $('#slider-div').slider({
 })
 
 function make_list() {
-	dash_g.selectAll('.recip-list').remove()
-	var recip_text = dash_g.selectAll('.recip-list').data(top_neighbors(settings.iso3, settings.year, data, donor_data))
+	dash_g.selectAll('#recip-list').remove()
+	var recip_text = dash_g.selectAll('#recip-list').data(top_neighbors(settings.iso3, settings.year, data, donor_data))
 	recip_text.enter().append('text')
 		.text(function(d,i){return (i+1)+'.  '+d[0]})
 		.attr('y', function(d, i) {return i * 17 + settings.subtitle_gap})
-		.attr('class', 'recip-list')
+		.attr('id', 'recip-list')
+		.attr('class', 'rank-list')
 
-	dash_g.selectAll('.donor-list').remove()
-	var donor_text = dash_g.selectAll('.donor-list').data(top_neighbors(settings.iso3, settings.year, data, recip_data))
+	dash_g.selectAll('#donor-list').remove()
+	var donor_text = dash_g.selectAll('#donor-list').data(top_neighbors(settings.iso3, settings.year, data, recip_data))
 	donor_text.enter().append('text')
 		.text(function(d,i){return (i+1)+'.  '+d[0]})
 		.attr('y', function(d, i) {return i * 17 + settings.subtitle_gap + 200})
-		.attr('class', 'donor-list')
+		.attr('id', 'donor-list')
+		.attr('class', 'rank-list')
+
 }
 
 var map_g = d3.select('#chart-svg')
@@ -226,6 +229,31 @@ $('.country').poshytip({
 				return name + '<br>No data'
 			}
 		}
+	}
+
+})
+
+$('.rank-list').poshytip({
+	alignTo: 'target', // Align to cursor
+	followCursor: true, // follow cursor when it moves
+	fade:false,
+	allowTipHover: false,
+	showTimeout: 0, // No fade in
+	hideTimeout: 0,  // No fade out
+	alignX: 'left', // X alignment
+	alignY: 'top', // Y alignment
+	className: 'tip-twitter', // Class for styling
+	slide: false, // No slide animation
+	offsetY: -25,
+	offsetX: 10,
+	liveEvents:true,
+	content: function(d){
+		var obj = this.__data__ // Data associated with element
+		var tmp_iso3 = obj[2]
+		var net_data = get_data(settings.iso3, settings.year, data).data[tmp_iso3]
+		var name = get_name(tmp_iso3) // Name from properties
+
+		return d3.format('.3s')(Math.abs(net_data)) + ' Metric Tons'
 	}
 
 })

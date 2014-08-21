@@ -8,8 +8,13 @@
 }
 
 text{
-	font-family: 'Lato', sans-serif;
-	font-size: 14px;
+	font-family: 'Karma', sans-serif;
+	font-size: 16px;
+}
+
+.rank-list {
+	font-weight: 400;
+	cursor: default;
 }
 
 .subtitle{
