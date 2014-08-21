@@ -31,3 +31,14 @@ function clone(obj) {
 
     throw new Error("Unable to copy obj! Its type isn't supported.");
 }
+
+
+function obj_sum( obj ) {
+  var sum = 0;
+  for( var el in obj ) {
+    if( obj.hasOwnProperty( el ) & obj[el]!=null) {
+      sum += parseFloat( obj[el] );
+    }
+  }
+  return sum;
+}
