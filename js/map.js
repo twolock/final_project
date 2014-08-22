@@ -209,10 +209,10 @@ function make_dash() {
 		.attr('id', 'amt-received')
 		.attr('class', 'amt')
 
-	var donor_text = (get_data(settings.iso3, settings.year, data).ALL > 0) ? 'Net Donor' : 'Net Recipient'
-	if (get_data(settings.iso3, settings.year, data).ALL == 0) {var donor_text = 'No Relationships'}
+	var donor_text = (get_data(settings.iso3, settings.year, data).ALL > 0) ? 'Net donor' : 'Net recipient'
+	if (get_data(settings.iso3, settings.year, data).ALL == 0) {var donor_text = 'No relationships'}
 	var donor_color = (get_data(settings.iso3, settings.year, data).ALL > 0) ? '#7A1B01' : '#086270'
-	if (donor_text == 'No Relationships') {var donor_color = '#C9BE62'}
+	if (donor_text == 'No relationships') {var donor_color = '#C9BE62'}
 	dash_g.selectAll('#donor-status').remove()
 	dash_g.append('text')
 		.text(donor_text)
