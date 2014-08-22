@@ -73,12 +73,7 @@ function top_neighbors(iso3, year, data, data2) {
 
 function draw_map() {
 	var iso3 = settings.iso3, year = settings.year
-	// map_g.select('.heading2').remove()
-	// var selection = map_g.append('text')
-	// 	.text(get_name(settings.iso3) + ', '+ settings.year)
-	// 	.attr('x', 2)
-	// 	.attr('y', settings.selection_dist)
-	// 	.attr('class', 'heading2')
+
 	var current_data = get_data(iso3, year, data)
 	var current_vals = []
 	for (var key in current_data.data) {
@@ -91,11 +86,34 @@ function draw_map() {
 
 	var recip_scale = d3.scale.linear()
 		.domain([0, min_val])
-		.range(['#E3B1A3', '#7A1B01'])
+		.range(settings.recip_color)
 	var donor_scale = d3.scale.linear()
 		.domain([0, max_val])
-		.range(['#93BCC2', '#086270'])
+		.range(settings.donor_color)
 	
+	dash_g.selectAll('.scale-label').remove()
+	dash_g.append('text')
+		.text(d3.format('.3s')(Math.abs(0)))
+		.attr('class', 'scale-label')
+		.attr('x', 10)
+		.attr('y', (353))		
+	dash_g.append('text')
+		.text(d3.format('.3s')(Math.abs(min_val)))
+		.attr('class', 'scale-label')
+		.attr('x', 280)
+		.attr('y', (353))		
+	dash_g.append('text')
+		.text(d3.format('.3s')(Math.abs(0)))
+		.attr('class', 'scale-label')
+		.attr('x', 10)
+		.attr('y', (408))		
+	dash_g.append('text')
+		.text(d3.format('.3s')(Math.abs(max_val)))
+		.attr('class', 'scale-label')
+		.attr('x', 280)
+		.attr('y', (408))		
+
+
 	paths.transition(100)
 		.attr("fill", function(d){
 			var tmp_val = current_data.data[d.properties.adm0_a3]
@@ -147,16 +165,15 @@ function make_list() {
 	})
 }
 
-function scale_gradients() {
-	var gradient = make_gradient('#E3B1A3', '#7A1B01',dash_g)
-	dash_g.selectAll('#donor-scale').remove()
+function scale_gradients(arr, y) {
+	make_gradient(arr[0], arr[1],dash_g)
 	dash_g.append('rect')
 		.attr('id', 'donor-scale')
 		.attr('x', 10)
-		.attr('y', 100)
-		.attr('height', 10)
-		.attr('width', 100)
-		.attr('fill', gradient)
+		.attr('y', y)
+		.attr('height', 15)
+		.attr('width', 300)
+		.attr('fill', 'url(#gradient)')
 }
 
 function make_dash() {
@@ -194,7 +211,7 @@ function make_dash() {
 
 	var donor_text = (get_data(settings.iso3, settings.year, data).ALL > 0) ? 'Net Donor' : 'Net Recipient'
 	if (get_data(settings.iso3, settings.year, data).ALL == 0) {var donor_text = 'No Relationships'}
-	var donor_color = (get_data(settings.iso3, settings.year, data).ALL > 0) ? '#086270' : '#7A1B01'
+	var donor_color = (get_data(settings.iso3, settings.year, data).ALL > 0) ? '#7A1B01' : '#086270'
 	if (donor_text == 'No Relationships') {var donor_color = '#C9BE62'}
 	dash_g.selectAll('#donor-status').remove()
 	dash_g.append('text')
@@ -205,7 +222,6 @@ function make_dash() {
 		.attr('fill', donor_color)
 
 	make_list()
-	scale_gradients()
 	$('#country-menu').val(settings.iso3)
 }
 
@@ -223,12 +239,14 @@ var settings = {
 	top_to_title: 50,
 	title_to_subtitle: 25,
 	subtitle_to_selection: 0,
-	selection_to_map:10,
+	selection_to_map:20,
 	heading_gap: 20,
 	country_to_year: 30,
 	year_to_donated: 55,
 	donated_to_received: 30,
-	received_to_status: 35
+	received_to_status: 35,
+	recip_color: ['#E3B1A3', '#7A1B01'],
+	donor_color: ['#93BCC2', '#086270']
 }
 settings.title_dist = settings.top_to_title
 settings.subtitle_dist = settings.title_dist + settings.title_to_subtitle
@@ -276,6 +294,11 @@ var subtitle = map_g.append('text')
 	.attr('x', 2)
 	.attr('y', settings.subtitle_dist)
 	.attr('class', 'subtitle')
+var subtitle = map_g.append('text')
+	.text("Click on a country to view that country's relationships in the selected year.")
+	.attr('class', 'subtitle')
+	.attr('x', 2)
+	.attr('y', settings.subtitle_dist + 20)
 
 
 var projection = d3.geo.equirectangular()
@@ -307,6 +330,13 @@ d3.select('#dash-g').append('text').text('Top 5 Recipients')
 d3.select('#dash-g').append('text').text('Top 5 Donors')
 	.attr('transform', 'translate(200,' + (200 + 0) + ')')
 	.attr('class', 'heading')
+d3.select('#dash-g').append('text').text('Donors')
+	.attr('transform', 'translate(10,' + (200 + 120) + ')')
+scale_gradients(settings.recip_color, 325)
+
+d3.select('#dash-g').append('text').text('Recipients')
+	.attr('transform', 'translate(10,' + (200 + 175) + ')')
+scale_gradients(settings.donor_color, 380)
 
 $('.country').on('click', function() {
 	var tmp_iso3 = this.__data__.properties.adm0_a3
@@ -316,7 +346,7 @@ $('.country').on('click', function() {
 
 $('.country').poshytip({
 	alignTo: 'cursor', // Align to cursor
-	followCursor: true, // follow cursor when it moves
+	followCursor: true, // follow cursor when it ©
 	fade:false,
 	allowTipHover: false,
 	showTimeout: 0, // No fade in
@@ -345,10 +375,10 @@ $('.country').poshytip({
 			if (tmp_iso3 == settings.iso3) {
 				var net_data = get_data(tmp_iso3, settings.year, data)['ALL']
 				if (net_data < 0) {
-					return name + '<br>' + d3.format('.3s')(Math.abs(net_data)) + ' MT Received'
+					return name + '<br>Net ' + d3.format('.3s')(Math.abs(net_data)) + ' MT Received'
 				}
 				else {
-					return name + '<br>' + d3.format('.3s')(net_data) + ' MT Donated'
+					return name + '<br>Net ' + d3.format('.3s')(net_data) + ' MT Donated'
 				}
 			}
 			if (net_data == 0) {

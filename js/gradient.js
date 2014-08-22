@@ -5,8 +5,8 @@ var gradient = container.append("svg:defs")
     .attr("id", "gradient")
     .attr("x1", "0%")
     .attr("y1", "0%")
-    .attr("x2", "0%")
-    .attr("y2", "100%")
+    .attr("x2", "100%")
+    .attr("y2", "0%")
     .attr("spreadMethod", "pad");
  
 gradient.append("svg:stop")
@@ -18,5 +18,4 @@ gradient.append("svg:stop")
     .attr("offset", "100%")
     .attr("stop-color", end)
     .attr("stop-opacity", 1);
-return gradient
 }
