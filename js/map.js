@@ -234,7 +234,7 @@ function get_country_list() {
 
 var settings = {
 	iso3: 'USA',
-	year: 1999,
+	year: 2003,
 	map_w: 1000,
 	top_to_title: 50,
 	title_to_subtitle: 25,
