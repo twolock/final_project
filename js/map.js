@@ -24,50 +24,61 @@ function get_name(iso3) {
 	else if (iso3 == 'PSE') {return 'Palestine'}
 	else if (iso3 == 'COD') {return 'Dem. Rep. Congo'}
 	else if (iso3 == 'CIV') {return "Cote d'Ivoire"}
+	else if (iso3 == 'GUF') {return 'France'}
 	else {return (iso3 == 'SSD') ? 'South Sudan' : shape.features.filter(function(d) {return d.properties.adm0_a3 == iso3})[0].properties.brk_name}
 }
 
-function top_neighbors(iso3, year, data, data2) {
-	var net_data = get_data(iso3, year, data).ALL
+function get_ISO3(name) {
+	if (["Cote d'Ivoire", 'Palestine', 'South Sudan', 'Dem. Rep. Congo'].indexOf(name) == -1) {
+		var tmp_data = shape.features.filter(function(d) {
+		return (d.properties.brk_name == name)
+		})[0]
 
-/*
-	if (net_data > 0) {
-		var tmp_data = get_data(iso3, year, donor_data).data
+		return tmp_data.properties.adm0_a3
 	}
 	else {
-		var tmp_data = get_data(iso3, year, recip_data).data
+		switch (name) {
+			case "Cote d'Ivoire":
+				return 'CIV'
+				break
+			case "Palestine":
+				return 'PSE'
+				break				
+			case "South Sudan":
+				return 'SSD'
+				break				
+			case "Dem. Rep. Congo":
+				return 'COD'
+				break				
+		}
+
 	}
-*/
+}
+
+function top_neighbors(iso3, year, data, data2) {
 	tmp_data = get_data(iso3, year, data2).data
 
-	// var tmp_data = get_data(iso3, year, neighbor_obj).data
-	var tmp_vals = []
-	for (var i = Object.keys(tmp_data).length - 1; i >= 0; i--) {
-		tmp_vals.push(Math.abs(tmp_data[Object.keys(tmp_data)[i]]))
-	};
-	tmp_vals.sort(function(a,b){
-		return b-a
-	})
-
-	var rev_data = {}
-	for (var i = Object.keys(tmp_data).length - 1; i >= 0; i--) {
-		if (Math.abs(tmp_data[Object.keys(tmp_data)[i]]) > 0) {
-			rev_data[Math.abs(tmp_data[Object.keys(tmp_data)[i]])] = Object.keys(tmp_data)[i]
-		}
-	};
-
-	var out_list = []
-	if (Object.keys(rev_data).length > 0){
-		for (i = 0; i <= Math.min(9, Object.keys(rev_data).length-1); i++) {
-			out_list.push([get_name(rev_data[tmp_vals[i]]), tmp_vals[i], rev_data[tmp_vals[i]]])
+	var sorted = []
+	for (var key in tmp_data) {
+		if (Math.abs(tmp_data[key]) > 0) {
+			sorted.push([get_name(key), Math.abs(tmp_data[key]), key])
 		}
 	}
+	sorted.sort(function(a, b){
+		return b[1]-a[1]
+	})
 
-	return out_list
+	return sorted.slice(0, 5)
 }
 
 function draw_map() {
 	var iso3 = settings.iso3, year = settings.year
+	// map_g.select('.heading2').remove()
+	// var selection = map_g.append('text')
+	// 	.text(get_name(settings.iso3) + ', '+ settings.year)
+	// 	.attr('x', 2)
+	// 	.attr('y', settings.selection_dist)
+	// 	.attr('class', 'heading2')
 	var current_data = get_data(iso3, year, data)
 	var current_vals = []
 	for (var key in current_data.data) {
@@ -106,6 +117,7 @@ function draw_map() {
 				return 'unselected'
 			}
 		})
+	$('#slider-label').text('(Currently ' + settings.year + ')')
 	make_dash()
 	return true
 
@@ -116,7 +128,7 @@ function make_list() {
 	var recip_text = dash_g.selectAll('#recip-list').data(top_neighbors(settings.iso3, settings.year, data, donor_data))
 	recip_text.enter().append('text')
 		.text(function(d,i){return (i+1)+'.  '+d[0]})
-		.attr('y', function(d, i) {return i * 17 + settings.heading_gap + 200 + (settings.top_to_title + settings.title_to_subtitle + settings.subtitle_to_map)})
+		.attr('y', function(d, i) {return i * 17 + settings.heading_gap + 200 + (0)})
 		.attr('id', 'recip-list')
 		.attr('class', 'rank-list')
 
@@ -125,7 +137,7 @@ function make_list() {
 	donor_text.enter().append('text')
 		.text(function(d,i){return (i+1)+'.  '+d[0]})
 		.attr('x', 200)
-		.attr('y', function(d, i) {return i * 17 + settings.heading_gap + 200 + (settings.top_to_title + settings.title_to_subtitle + settings.subtitle_to_map)})
+		.attr('y', function(d, i) {return i * 17 + settings.heading_gap + 200 + (0)})
 		.attr('id', 'donor-list')
 		.attr('class', 'rank-list')
 	$('.rank-list').on('click', function() {
@@ -135,17 +147,29 @@ function make_list() {
 	})
 }
 
+function scale_gradients() {
+	var gradient = make_gradient('#E3B1A3', '#7A1B01',dash_g)
+	dash_g.selectAll('#donor-scale').remove()
+	dash_g.append('rect')
+		.attr('id', 'donor-scale')
+		.attr('x', 10)
+		.attr('y', 100)
+		.attr('height', 10)
+		.attr('width', 100)
+		.attr('fill', gradient)
+}
+
 function make_dash() {
 	dash_g.selectAll('#country-name').remove()
 	dash_g.append('text')
 		.text(get_name(settings.iso3))
-		.attr('transform', 'translate(0,' + (settings.top_to_title + settings.title_to_subtitle + settings.subtitle_to_map) + ')')
+		.attr('transform', 'translate(0,' + (0) + ')')
 		.attr('id', 'country-name')
 	
 	dash_g.selectAll('#selected-year').remove()
 	dash_g.append('text')
 		.text(settings.year)
-		.attr('transform', 'translate(0,' + (settings.top_to_title + settings.title_to_subtitle + settings.subtitle_to_map + settings.country_to_year) + ')')
+		.attr('transform', 'translate(0,' + (0 + settings.country_to_year) + ')')
 		.attr('id', 'selected-year')
 	
 	dash_g.selectAll('#amt-donated').remove()
@@ -153,7 +177,7 @@ function make_dash() {
 		.text(function() {
 			return d3.format('.3s')(obj_sum(get_data(settings.iso3, settings.year, donor_data).data)) + ' metric tons donated'
 		})
-		.attr('transform', 'translate(0,' + (settings.top_to_title + settings.title_to_subtitle + settings.subtitle_to_map
+		.attr('transform', 'translate(0,' + (0
 			+ settings.country_to_year + settings.year_to_donated) + ')')
 		.attr('id', 'amt-donated')
 		.attr('class', 'amt')
@@ -163,7 +187,7 @@ function make_dash() {
 		.text(function() {
 			return d3.format('.3s')(Math.abs(obj_sum(get_data(settings.iso3, settings.year, recip_data).data))) + ' metric tons received'
 		})
-		.attr('transform', 'translate(0,' + (settings.top_to_title + settings.title_to_subtitle + settings.subtitle_to_map
+		.attr('transform', 'translate(0,' + (0
 			+ settings.country_to_year + settings.year_to_donated + settings.donated_to_received) + ')')
 		.attr('id', 'amt-received')
 		.attr('class', 'amt')
@@ -175,27 +199,41 @@ function make_dash() {
 	dash_g.selectAll('#donor-status').remove()
 	dash_g.append('text')
 		.text(donor_text)
-		.attr('transform', 'translate(0,' + (settings.top_to_title + settings.title_to_subtitle + settings.subtitle_to_map
+		.attr('transform', 'translate(0,' + (0
 			+ settings.country_to_year + settings.year_to_donated + settings.donated_to_received + settings.received_to_status) + ')')
 		.attr('id', 'donor-status')
 		.attr('fill', donor_color)
 
 	make_list()
+	scale_gradients()
+	$('#country-menu').val(settings.iso3)
+}
+
+function get_country_list() {
+	var list = Object.keys(get_data(settings.iso3, settings.year, data).data)
+	var list = list.map(get_name)
+	list.sort()
+	return list
 }
 
 var settings = {
 	iso3: 'USA',
-	year: 1995,
+	year: 1999,
 	map_w: 1000,
 	top_to_title: 50,
 	title_to_subtitle: 25,
-	subtitle_to_map: 10,
+	subtitle_to_selection: 0,
+	selection_to_map:10,
 	heading_gap: 20,
-	country_to_year: 25,
-	year_to_donated: 40,
+	country_to_year: 30,
+	year_to_donated: 55,
 	donated_to_received: 30,
-	received_to_status: 50
+	received_to_status: 35
 }
+settings.title_dist = settings.top_to_title
+settings.subtitle_dist = settings.title_dist + settings.title_to_subtitle
+settings.selection_dist = settings.subtitle_dist + settings.subtitle_to_selection
+settings.map_dist = settings.selection_dist + settings.selection_to_map
 
 $('#slider-div').slider({
 	min:1988,
@@ -210,6 +248,21 @@ $('#slider-div').slider({
 
 })
 
+var country_list = get_country_list()
+var country_menu = d3.select('#country-menu')
+var country_list = country_menu.selectAll('option')
+	.data(country_list)
+	.enter().append('option')
+	.attr('value', function(d) {return get_ISO3(d)})
+	.text(function(d) {return d})
+
+$('#country-menu').val(settings.iso3)
+	.on('change', function() {
+	settings.iso3 = $('#country-menu').val()
+	draw_map()
+})
+
+
 var map_g = d3.select('#chart-svg')
 	.append('g')
 	.attr('id', 'map-g')
@@ -218,15 +271,13 @@ var title = map_g.append('text')
 	.attr('class', 'title')
 	.text('Donors and Recipients of Food Aid')
 	.attr('y', settings.top_to_title)
-var title = map_g.append('text')
-	.attr('class', 'title')
-	.text('Donors and Recipients of Food Aid')
-	.attr('y', settings.top_to_title)
 var subtitle = map_g.append('text')
-	.text('Net food aid sent/received by all countries in metric tons (MT), 1988-2012')
+	.text('Net metric tons (MT) of food aid sent and received globally, 1988-2012')
 	.attr('x', 2)
-	.attr('y', settings.top_to_title + settings.title_to_subtitle)
+	.attr('y', settings.subtitle_dist)
 	.attr('class', 'subtitle')
+
+
 var projection = d3.geo.equirectangular()
 
 // Set path generator -- how coordinates translate into a path element
@@ -241,17 +292,20 @@ var paths = d3.select('#map-g').selectAll('.country')
 	.attr('fill', '#d3d3d3')
 	.attr("stroke", "#ffffff")
 	.attr('d', path)
-	.attr('transform', 'translate(0,'+(settings.top_to_title + settings.title_to_subtitle + settings.subtitle_to_map)+')')
+	.attr('transform', 'translate(0,'+(settings.map_dist)+')')
 	.style('cursor', 'pointer')
+	.attr('id', function(d) {
+		return d.properties.adm0_a3
+	})
 
 var dash_g = d3.select('#chart-svg').append('g')
 	.attr('id', 'dash-g')
-	.attr('transform', 'translate(' + settings.map_w + ',50)')
-d3.select('#dash-g').append('text').text('Top 10 Recipients')
+	.attr('transform', 'translate(' + settings.map_w + ','+(settings.map_dist + 50)+')')
+d3.select('#dash-g').append('text').text('Top 5 Recipients')
 	.attr('class', 'heading')
-	.attr('transform', 'translate(0,' + (200 + settings.top_to_title + settings.title_to_subtitle + settings.subtitle_to_map) + ')')
-d3.select('#dash-g').append('text').text('Top 10 Donors')
-	.attr('transform', 'translate(200,' + (200 + settings.top_to_title + settings.title_to_subtitle + settings.subtitle_to_map) + ')')
+	.attr('transform', 'translate(0,' + (200 + 0) + ')')
+d3.select('#dash-g').append('text').text('Top 5 Donors')
+	.attr('transform', 'translate(200,' + (200 + 0) + ')')
 	.attr('class', 'heading')
 
 $('.country').on('click', function() {

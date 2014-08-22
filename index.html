@@ -14,12 +14,22 @@
 	<link rel="stylesheet" href="css/styles.css">	
     <script type="text/javascript" src="data/shape.js"></script>
     <script type="text/javascript" src="js/clone.js"></script>
+    <script type="text/javascript" src="js/gradient.js"></script>
   <meta charset="utf-8">
   <title>Food Aid Visualization</title>
-  <div id='chart-div'>
-	  <svg x=0 y=0 width=1400 height=600 id='chart-svg'></svg>
+  <div id='chart-div' style='float:left'>
+	  <svg x=0 y=0 width=1350 height=600 id='chart-svg'></svg>
   </div>
-  <div id='slider-div'>
+  <div id='control-div' style='float:left'>
+  	<div><label class='control' for='slider'>Select a Year</label>
+  		<text id='slider-label'>(Currently 1999)</text>
+  	</div>
+  	<div id='slider-div' name='slider'>
+  	</div>
+  	<div id='menu-div'>
+  		<label for='country' class='control'>Select a Country:</label>
+  		<select name='country' id='country-menu'></select>
+  	</div>
   </div>
   <script type="text/javascript" src="js/map.js"></script>
 </head>

@@ -1,17 +1,12 @@
-#slider-div{
-	width:500px;
-}
-
-/*
-.selected {
-	stroke:gray;
-	stroke-width:1;
-}
-*/
 
 text{
 	font-family: 'Open Sans', sans-serif;
-	font-size: 12px;
+	font-size: 14px;
+}
+.control{
+	font-family: 'Open Sans', sans-serif;
+	font-size: 14px;
+	font-weight: 600;
 }
 
 .rank-list {
@@ -21,7 +16,7 @@ text{
 
 .heading{
 	font-weight: 600;
-	font-size: 14px;
+	font-size: 16px;
 }
 .subtitle{
 	font-weight: 400;
@@ -35,15 +30,29 @@ text{
 .amt {
 	font-size: 24px;
 }
+.heading2 {
+	font-size:30px;
+}
 
 #country-name {
 	font-weight: 600;
-	font-size: 30px;
+	font-size: 32px;
 }
 #selected-year {
-	font-size: 20px;
+	font-size: 26px;
 }
 #donor-status{
-	font-size: 26px;
+	font-size: 28px;
 	font-weight: 600;
+}
+#slider-div{
+	width:300px;
+	float:left;
+}
+#menu-div{
+	float:left;
+	margin-left: 20px;
+}
+select{
+	width:200px;
 }
